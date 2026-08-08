@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Human Anatomy Atlas</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <h1>Interactive Human Anatomy Atlas</h1>
+    <p class="subtitle">Designed for Biology Education • Click organs to explore systems and pathways</p>
+
+    <div class="container">
+        <!-- LEFT PANEL: Interactive Anatomy Graphics -->
+        <div class="view-box">
+            <button id="btnBack" class="btn-back hidden">← Back to Full Body</button>
+            <h3 id="viewTitle">Main Overview: Select an Organ</h3>
+            
+            <svg viewBox="0 0 200 500" id="anatomySvg">
+                <!-- Base Human Silhouette -->
+                <path class="body-silhouette" d="M100,20 C115,20 125,30 125,45 C125,60 115,70 100,70 C85,70 75,60 75,45 C75,30 85,20 100,20 Z M100,75 C115,75 140,90 145,130 L155,240 C157,250 145,255 140,245 L130,160 L130,320 L145,470 C147,480 132,485 130,475 L115,340 L100,340 L85,340 L70,475 C68,485 53,485 55,470 L70,320 L70,160 L60,245 C55,255 43,250 45,240 L55,130 C60,90 85,75 100,75 Z"/>
+                
+                <!-- Dynamic system elements are loaded here by script.js -->
+                <g id="dynamicContent"></g>
+            </svg>
+        </div>
+
+        <!-- RIGHT PANEL: Scientific Information -->
+        <div class="info-box" id="infoPanel">
+            <h2 id="infoTitle">Welcome to the Anatomy Guide</h2>
+            <p id="infoMeta" class="info-meta"></p>
+            <div id="infoContent">
+                <p>Click on any primary organ highlighted on the silhouette to inspect its complete anatomical system, functional pathways, and specialized mechanics.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
