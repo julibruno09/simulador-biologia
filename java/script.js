@@ -662,6 +662,22 @@ function applyEnvironmentalDeaths() {
       huboCambios = true;
     }
 
+
+/* GANADO:
+   Muere cuando el CO₂ llega a 1700 unidades.
+
+   Se actualiza tanto la cantidad interna
+   como la barra de control.
+*/
+
+    if (co2 >= 1700 && counts.cattle > 0) {
+      counts.cattle = 0;
+      inputs.cattle.value = 0;
+      huboCambios = true;
+
+    }
+
+
   }
 
 }
@@ -774,6 +790,43 @@ function setElementEffects(
   atmosphericCO2,
   pH
 ) {
+    /* =====================================================
+     GANADO
+     Desaparece progresivamente cuando aumenta el CO₂.
+     ===================================================== */
+
+  const cattle = document.querySelector(".cattle");
+
+  // Comienza a disminuir cuando el CO₂ supera 700.
+  // Desaparece completamente al llegar a 1500.
+  const cattleLoss = Math.max(
+    0,
+    Math.min(
+      1,
+      (atmosphericCO2 - 700) / 800
+    )
+  );
+
+  if (cattle) {
+    cattle.style.opacity = String(1 - cattleLoss);
+
+    cattle.style.transition = "opacity 1s ease";
+
+    cattle.classList.toggle(
+      "dead",
+      cattleLoss >= 1
+    );
+  }
+
+  // Cuando desaparece, el indicador de ganado pasa a 0.
+  if (cattleLoss >= 1 && counts.cattle > 0) {
+    counts.cattle = 0;
+
+    updateLabels();
+  }
+
+  
+  
 
   const forest =
     document.querySelector(".forest");
@@ -1433,11 +1486,14 @@ inputNames.forEach(name => {
 
       let newValue = Number(event.target.value);
 
+      
       const naturalElements = [
         "tree",
         "algae",
-        "wetland"
+        "wetland",
+        "cattle"
       ];
+
 
       hideRecoveryWarning();
 
@@ -1490,24 +1546,53 @@ inputNames.forEach(name => {
 const co2ParticleLayer =
   document.getElementById("co2ParticleLayer");
 
+
+/* ==========================================
+   COORDENADAS CORREGIDAS
+   PARA PAISAJE ESCALADO
+   ========================================== */
+
 function getElementCenter(element, skyRect) {
 
-  const rect =
-    element.getBoundingClientRect();
+  const sky = document.querySelector(".sky");
+
+  if (!sky || !element) {
+    return { x: 0, y: 0 };
+  }
+
+  // Usar la imagen real para localizar
+  // el punto de origen o destino.
+  const image = element.querySelector("img");
+
+  const target = image || element;
+
+  const rect = target.getBoundingClientRect();
+
+  // Escala real aplicada al paisaje.
+  const scaleX =
+    skyRect.width / sky.offsetWidth;
+
+  const scaleY =
+    skyRect.height / sky.offsetHeight;
 
   return {
-    x:
+
+    x: (
       rect.left -
       skyRect.left +
-      rect.width / 2,
+      rect.width / 2
+    ) / scaleX,
 
-    y:
+    y: (
       rect.top -
       skyRect.top +
       rect.height / 2
+    ) / scaleY
+
   };
 
 }
+
 
 
 /* =========================================================
@@ -1541,20 +1626,16 @@ function createFireCO2Particle() {
     skyRect
   );
 
-  const atmosphereRect =
-    atmosphere.getBoundingClientRect();
+  
+/* Centro de la atmósfera corregido
+   según el escalado del paisaje */
 
-  const atmospherePoint = {
-    x:
-      atmosphereRect.left -
-      skyRect.left +
-      atmosphereRect.width / 2,
+const atmospherePoint =
+  getElementCenter(
+    atmosphere,
+    skyRect
+  );
 
-    y:
-      atmosphereRect.top -
-      skyRect.top +
-      atmosphereRect.height / 2
-  };
 
   const particle = document.createElement("span");
 
@@ -1563,23 +1644,23 @@ function createFireCO2Particle() {
   // Punto de partida: incendios.
   particle.style.setProperty(
     "--start-x",
-    `${firePoint.x - 3.5}px`
+    `${firePoint.x - 5}px`
   );
 
   particle.style.setProperty(
     "--start-y",
-    `${firePoint.y - 3.5}px`
+    `${firePoint.y - 5}px`
   );
 
   // Punto de llegada: atmósfera.
   particle.style.setProperty(
     "--end-x",
-    `${atmospherePoint.x - 3.5}px`
+    `${atmospherePoint.x - 5}px`
   );
 
   particle.style.setProperty(
     "--end-y",
-    `${atmospherePoint.y - 3.5}px`
+    `${atmospherePoint.y - 5}px`
   );
 
   // Sin retraso: salen continuamente.
@@ -1640,20 +1721,16 @@ function createCO2Particles(
       skyRect
     );
 
-  const atmosphereRect =
-    atmosphere.getBoundingClientRect();
+  
+/* Centro de la atmósfera corregido
+   según el escalado del paisaje */
 
-  const atmospherePoint = {
-    x:
-      atmosphereRect.left -
-      skyRect.left +
-      atmosphereRect.width / 2,
+const atmospherePoint =
+  getElementCenter(
+    atmosphere,
+    skyRect
+  );
 
-    y:
-      atmosphereRect.top -
-      skyRect.top +
-      atmosphereRect.height / 2
-  };
 
 
   /*
@@ -1701,22 +1778,22 @@ function createCO2Particles(
 
       particle.style.setProperty(
         "--start-x",
-        `${startX - 3.5}px`
+        `${startX - 5}px`
       );
 
       particle.style.setProperty(
         "--start-y",
-        `${startY - 3.5}px`
+        `${startY - 5}px`
       );
 
       particle.style.setProperty(
         "--end-x",
-        `${endX - 3.5}px`
+        `${endX - 5}px`
       );
 
       particle.style.setProperty(
         "--end-y",
-        `${endY - 3.5}px`
+        `${endY - 5}px`
       );
 
       /*
@@ -1862,3 +1939,25 @@ challengesBtn.addEventListener("click", () => {
   window.location.href = "./desafios.html";
 
 });
+
+
+
+/* ==========================================
+   TRASLADAR INFORMACIÓN AL PANEL IZQUIERDO
+   ========================================== */
+
+const panelVariablesInfo =
+  document.querySelector(".control-panel");
+
+const panelInformacionInfo =
+  document.getElementById("infoPanel");
+
+if (panelVariablesInfo && panelInformacionInfo) {
+
+  // Mover el panel informativo dentro
+  // del panel izquierdo de variables.
+  panelVariablesInfo.appendChild(
+    panelInformacionInfo
+  );
+
+}

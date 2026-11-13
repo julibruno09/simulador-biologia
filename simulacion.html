@@ -20,7 +20,9 @@
     <button id="challengesBtn" class="challenges-btn">
       🎯 Iniciar desafíos
     </button>
-
+     <a href="./index.html" class="home-btn">
+      Página principal
+    </a>
     <button id="resetBtn" class="reset-btn">
       Reiniciar
     </button>
@@ -158,6 +160,7 @@
 
   <section class="simulation">
 
+  <div class="scene-viewport">
     <div class="sky">
 
       <div class="cloud cloud1">☁️</div>
@@ -256,7 +259,6 @@
 
         <span class="fire-emoji" aria-hidden="true"><img src="./Imagenes/Incendios.png" width="120"></span>
 
-        <span>Incendios</span>
 
       </button>
 
@@ -446,12 +448,11 @@
 
       </div>
 
-    </div>
+        </div> <!-- Fin de sky -->
+  </div> <!-- Fin de scene-viewport -->
 
-
-    <!-- =====================================================
-         PANEL INFORMATIVO
-         ===================================================== -->
+  <!-- =====================================================
+       PANEL INFORMATIVO -->
 
     <aside id="infoPanel" class="info-panel">
 
@@ -538,6 +539,7 @@
 
 
 <script src="./java/script.js"></script>
+<script src="./java/ajustar-paisaje.js"></script>
 
 </body>
 </html>
